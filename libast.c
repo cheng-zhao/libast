@@ -1750,8 +1750,10 @@ static void ast_eval_bool(ast_t *ast, ast_node_t *node) {
             if (v1->v.lval == 1) lres = 1;
             else if (v1->v.lval == -1) lres = 1 - 2 * (v2->v.lval & 1);
           }
-          int64_t tmp = ipow(v1->v.lval, v2->v.lval);
-          if (tmp <= LONG_MAX) lres = (long) tmp;
+          else {
+            int64_t tmp = ipow(v1->v.lval, v2->v.lval);
+            if (tmp <= LONG_MAX) lres = (long) tmp;
+          }
           ast_set_var_value(&node->value, &lres, 0, AST_DTYPE_LONG);
         }
         else if (dtype == AST_DTYPE_DOUBLE) {
@@ -2157,8 +2159,10 @@ static void ast_eval_pre(ast_t *ast, ast_node_t *node) {
             if (v1->v.ival == 1) ires = 1;
             else if (v1->v.ival == -1) ires = 1 - 2 * (v2->v.ival & 1);
           }
-          int64_t tmp = ipow(v1->v.ival, v2->v.ival);
-          if (tmp <= INT_MAX) ires = (int) tmp;
+          else {
+            int64_t tmp = ipow(v1->v.ival, v2->v.ival);
+            if (tmp <= INT_MAX) ires = (int) tmp;
+          }
           ast_set_var_value(&node->value, &ires, 0, AST_DTYPE_INT);
         }
         else if (dtype == AST_DTYPE_LONG) {
@@ -2167,8 +2171,10 @@ static void ast_eval_pre(ast_t *ast, ast_node_t *node) {
             if (v1->v.lval == 1) lres = 1;
             else if (v1->v.lval == -1) lres = 1 - 2 * (v2->v.lval & 1);
           }
-          int64_t tmp = ipow(v1->v.lval, v2->v.lval);
-          if (tmp <= LONG_MAX) lres = (long) tmp;
+          else {
+            int64_t tmp = ipow(v1->v.lval, v2->v.lval);
+            if (tmp <= LONG_MAX) lres = (long) tmp;
+          }
           ast_set_var_value(&node->value, &lres, 0, AST_DTYPE_LONG);
         }
         else if (dtype == AST_DTYPE_FLOAT) {
