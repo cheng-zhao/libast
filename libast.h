@@ -109,7 +109,7 @@ int ast_set_var(ast_t *ast, const long idx, const void *value,
 
 /******************************************************************************
 Function `ast_eval`:
-  Evaluate the value given the abstract syntax tree and the variable array.
+  Evaluate the expression given the abstract syntax tree and the variable array.
 Arguments:
   * `ast`:      interface of the abstract syntax tree;
   * `value`:    address of the variable holding the evaluated value.
@@ -117,6 +117,20 @@ Return:
   Zero on success; non-zero on error.
 ******************************************************************************/
 int ast_eval(ast_t *ast, void *value);
+
+/******************************************************************************
+Function `ast_eval_num`:
+  Evaluate the numerical expression given the variable array with the same
+  data type.
+Arguments:
+  * `ast`:      interface of the abstract syntax tree;
+  * `value`:    address of the variable holding the evaluated value;
+  * `var`:      pointer to the variable array;
+  * `size`:     number of elements in the variable array.
+Return:
+  Zero on success; non-zero on error.
+******************************************************************************/
+int ast_eval_num(ast_t *ast, void *value, const void *var, const size_t size);
 
 /******************************************************************************
 Function `ast_perror`:

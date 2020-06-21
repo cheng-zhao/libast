@@ -51,10 +51,11 @@
 #define AST_ERR_VAR             (-6)
 #define AST_ERR_EXIST           (-7)
 #define AST_ERR_NOEXP           (-8)
-#define AST_ERR_VALUE           (-10)
-#define AST_ERR_EVAL            (-12)
-#define AST_ERR_NVAR            (-13)
-#define AST_ERR_MISMATCH        (-14)
+#define AST_ERR_VALUE           (-9)
+#define AST_ERR_SIZE            (-10)
+#define AST_ERR_EVAL            (-11)
+#define AST_ERR_NVAR            (-12)
+#define AST_ERR_MISMATCH        (-13)
 #define AST_ERR_UNKNOWN         (-99)
 
 #define AST_ERRNO(ast)          (((ast_error_t *)ast->error)->errno)
@@ -488,7 +489,7 @@ Function `ast_save_vidx`:
   Record the index of a variable if necessary;
 Arguments:
   * `ast`:      interface of the abstract syntax tree;
-  * `idx`:      the index to be recorded;
+  * `idx`:      the index to be recorded.
 ******************************************************************************/
 static void ast_save_vidx(ast_t *ast, const long idx) {
   const long pos = (ast->vidx) ? ast_vidx_pos(ast->vidx, ast->nvar, idx) : 0;
@@ -1287,17 +1288,20 @@ Function `ast_eval_int`:
   Evaluate the value in int type, given the abstract syntax tree.
 Arguments:
   * `ast`:      interface of the abstract syntax tree;
-  * `node`:     a node of the abstract syntax tree.
+  * `node`:     a node of the abstract syntax tree;
+  * `var`:      the user-supplied variable array.
 Return:
   The resulting integer on success; 0 on error.
 ******************************************************************************/
-static int ast_eval_int(ast_t *ast, const ast_node_t *node) {
+static int ast_eval_int(ast_t *ast, const ast_node_t *node, const int *var) {
   if (AST_IS_ERROR(ast)) return 0;
   if (node->type == AST_TOK_NUM) return node->value.v.ival;
-  else if (node->type == AST_TOK_VAR)
-    return *((int *) ast->var + node->value.v.lval);
+  else if (node->type == AST_TOK_VAR) {
+    if (var) return var[ast->vidx[node->value.v.lval] - 1];
+    else return *((int *) ast->var + node->value.v.lval);
+  }
   else if (ast_tok_attr[node->type].argc == 1) {
-    const int v = ast_eval_int(ast, node->left);
+    const int v = ast_eval_int(ast, node->left, var);
     switch (node->type) {
       case AST_TOK_NEG: return -v;
       case AST_TOK_ABS: return (v < 0) ? -v : v;
@@ -1308,8 +1312,8 @@ static int ast_eval_int(ast_t *ast, const ast_node_t *node) {
     }
   }
   else {
-    const int v1 = ast_eval_int(ast, node->left);
-    const int v2 = ast_eval_int(ast, node->right);
+    const int v1 = ast_eval_int(ast, node->left, var);
+    const int v2 = ast_eval_int(ast, node->right, var);
     switch (node->type) {
       case AST_TOK_ADD: return v1 + v2;
       case AST_TOK_MINUS: return v1 - v2;
@@ -1342,17 +1346,20 @@ Function `ast_eval_long`:
   Evaluate the value in long int type, given the abstract syntax tree.
 Arguments:
   * `ast`:      interface of the abstract syntax tree;
-  * `node`:     a node of the abstract syntax tree.
+  * `node`:     a node of the abstract syntax tree;
+  * `var`:      the user-supplied variable array.
 Return:
   The resulting long integer on success; 0 on error.
 ******************************************************************************/
-static long ast_eval_long(ast_t *ast, const ast_node_t *node) {
+static long ast_eval_long(ast_t *ast, const ast_node_t *node, const long *var) {
   if (AST_IS_ERROR(ast)) return 0;
   if (node->type == AST_TOK_NUM) return node->value.v.lval;
-  else if (node->type == AST_TOK_VAR)
-    return *((long *) ast->var + node->value.v.lval);
+  else if (node->type == AST_TOK_VAR) {
+    if (var) return var[ast->vidx[node->value.v.lval] - 1];
+    else return *((long *) ast->var + node->value.v.lval);
+  }
   else if (ast_tok_attr[node->type].argc == 1) {
-    const long v = ast_eval_long(ast, node->left);
+    const long v = ast_eval_long(ast, node->left, var);
     switch (node->type) {
       case AST_TOK_NEG: return -v;
       case AST_TOK_ABS: return (v < 0) ? -v : v;
@@ -1363,8 +1370,8 @@ static long ast_eval_long(ast_t *ast, const ast_node_t *node) {
     }
   }
   else {
-    const long v1 = ast_eval_long(ast, node->left);
-    const long v2 = ast_eval_long(ast, node->right);
+    const long v1 = ast_eval_long(ast, node->left, var);
+    const long v2 = ast_eval_long(ast, node->right, var);
     switch (node->type) {
       case AST_TOK_ADD: return v1 + v2;
       case AST_TOK_MINUS: return v1 - v2;
@@ -1397,17 +1404,21 @@ Function `ast_eval_float`:
   Evaluate the value in float type, given the abstract syntax tree.
 Arguments:
   * `ast`:      interface of the abstract syntax tree;
-  * `node`:     a node of the abstract syntax tree.
+  * `node`:     a node of the abstract syntax tree;
+  * `var`:      the user-supplied variable array.
 Return:
   The resulting float number on success; HUGE_VALF on error.
 ******************************************************************************/
-static float ast_eval_float(ast_t *ast, const ast_node_t *node) {
+static float ast_eval_float(ast_t *ast, const ast_node_t *node,
+    const float *var) {
   if (AST_IS_ERROR(ast)) return HUGE_VALF;
   if (node->type == AST_TOK_NUM) return node->value.v.fval;
-  else if (node->type == AST_TOK_VAR)
-    return *((float *) ast->var + node->value.v.lval);
+  else if (node->type == AST_TOK_VAR) {
+    if (var) return var[ast->vidx[node->value.v.lval] - 1];
+    else return *((float *) ast->var + node->value.v.lval);
+  }
   else if (ast_tok_attr[node->type].argc == 1) {
-    const float v = ast_eval_float(ast, node->left);
+    const float v = ast_eval_float(ast, node->left, var);
     switch (node->type) {
       case AST_TOK_NEG: return -v;
       case AST_TOK_ABS: return fabsf(v);
@@ -1420,8 +1431,8 @@ static float ast_eval_float(ast_t *ast, const ast_node_t *node) {
     }
   }
   else {
-    const float v1 = ast_eval_float(ast, node->left);
-    const float v2 = ast_eval_float(ast, node->right);
+    const float v1 = ast_eval_float(ast, node->left, var);
+    const float v2 = ast_eval_float(ast, node->right, var);
     switch (node->type) {
       case AST_TOK_ADD: return v1 + v2;
       case AST_TOK_MINUS: return v1 - v2;
@@ -1441,17 +1452,21 @@ Function `ast_eval_double`:
   Evaluate the value in double type, given the abstract syntax tree.
 Arguments:
   * `ast`:      interface of the abstract syntax tree;
-  * `node`:     a node of the abstract syntax tree.
+  * `node`:     a node of the abstract syntax tree;
+  * `var`:      the user-supplied variable array.
 Return:
   The resulting double number on success; HUGE_VAL on error.
 ******************************************************************************/
-static double ast_eval_double(ast_t *ast, const ast_node_t *node) {
+static double ast_eval_double(ast_t *ast, const ast_node_t *node,
+    const double *var) {
   if (AST_IS_ERROR(ast)) return HUGE_VAL;
   if (node->type == AST_TOK_NUM) return node->value.v.dval;
-  else if (node->type == AST_TOK_VAR)
-    return *((double *) ast->var + node->value.v.lval);
+  else if (node->type == AST_TOK_VAR) {
+    if (var) return var[ast->vidx[node->value.v.lval] - 1];
+    else return *((double *) ast->var + node->value.v.lval);
+  }
   else if (ast_tok_attr[node->type].argc == 1) {
-    const double v = ast_eval_double(ast, node->left);
+    const double v = ast_eval_double(ast, node->left, var);
     switch (node->type) {
       case AST_TOK_NEG: return -v;
       case AST_TOK_ABS: return fabs(v);
@@ -1464,8 +1479,8 @@ static double ast_eval_double(ast_t *ast, const ast_node_t *node) {
     }
   }
   else {
-    const double v1 = ast_eval_double(ast, node->left);
-    const double v2 = ast_eval_double(ast, node->right);
+    const double v1 = ast_eval_double(ast, node->left, var);
+    const double v2 = ast_eval_double(ast, node->right, var);
     switch (node->type) {
       case AST_TOK_ADD: return v1 + v2;
       case AST_TOK_MINUS: return v1 - v2;
@@ -2347,7 +2362,7 @@ int ast_build(ast_t *ast, const char *str, const ast_dtype_t dtype,
 
 /******************************************************************************
 Function `ast_eval`:
-  Evaluate the value given the abstract syntax tree and the variable array.
+  Evaluate the expression given the abstract syntax tree and the variable array.
 Arguments:
   * `ast`:      interface of the abstract syntax tree;
   * `value`:    address of the variable holding the evaluated value.
@@ -2374,24 +2389,69 @@ int ast_eval(ast_t *ast, void *value) {
       *((bool *) value) = root->value.v.bval;
       break;
     case AST_DTYPE_INT:
-      *((int *) value) = ast_eval_int(ast, root);
+      *((int *) value) = ast_eval_int(ast, root, NULL);
       if (AST_IS_ERROR(ast)) return AST_ERRNO(ast);
       break;
     case AST_DTYPE_LONG:
-      *((long *) value) = ast_eval_long(ast, root);
+      *((long *) value) = ast_eval_long(ast, root, NULL);
       if (AST_IS_ERROR(ast)) return AST_ERRNO(ast);
       break;
     case AST_DTYPE_FLOAT:
-      *((float *) value) = ast_eval_float(ast, root);
+      *((float *) value) = ast_eval_float(ast, root, NULL);
       if (AST_IS_ERROR(ast)) return AST_ERRNO(ast);
       break;
     case AST_DTYPE_DOUBLE:
-      *((double *) value) = ast_eval_double(ast, root);
+      *((double *) value) = ast_eval_double(ast, root, NULL);
       if (AST_IS_ERROR(ast)) return AST_ERRNO(ast);
       break;
     default:
       return AST_ERRNO(ast) = AST_ERR_DTYPE;
   }
+  return 0;
+}
+
+/******************************************************************************
+Function `ast_eval_num`:
+  Evaluate the numerical expression given the variable array with the same
+  data type.
+Arguments:
+  * `ast`:      interface of the abstract syntax tree;
+  * `value`:    address of the variable holding the evaluated value;
+  * `var`:      pointer to the variable array;
+  * `size`:     number of elements in the variable array.
+Return:
+  Zero on success; non-zero on error.
+******************************************************************************/
+int ast_eval_num(ast_t *ast, void *value, const void *var, const size_t size) {
+  if (!ast) return AST_ERR_INIT;
+  if (AST_IS_ERROR(ast)) return AST_ERRNO(ast);
+  if (!ast->ast) return AST_ERRNO(ast) = AST_ERR_NOEXP;
+  if (!value) return AST_ERRNO(ast) = AST_ERR_VALUE;
+  if (!var && size) return AST_ERRNO(ast) = AST_ERR_VAR;
+  if (ast->nvar && size < ast->vidx[ast->nvar - 1])
+    return AST_ERRNO(ast) = AST_ERR_SIZE;
+
+  switch (ast->dtype) {
+    case AST_DTYPE_INT:
+      *((int *) value) =
+        ast_eval_int(ast, (ast_node_t *) ast->ast, (int *) var);
+      break;
+    case AST_DTYPE_LONG:
+      *((long *) value) =
+        ast_eval_long(ast, (ast_node_t *) ast->ast, (long *) var);
+      break;
+    case AST_DTYPE_FLOAT:
+      *((float *) value) =
+        ast_eval_float(ast, (ast_node_t *) ast->ast, (float *) var);
+      break;
+    case AST_DTYPE_DOUBLE:
+      *((double *) value) =
+        ast_eval_double(ast, (ast_node_t *) ast->ast, (double *) var);
+      break;
+    default:
+      return AST_ERRNO(ast) = AST_ERR_DTYPE;
+  }
+  if (AST_IS_ERROR(ast)) return AST_ERRNO(ast);
   return 0;
 }
 
@@ -2448,6 +2508,9 @@ void ast_perror(const ast_t *ast, FILE *fp, const char *msg) {
       break;
     case AST_ERR_VALUE:
       errmsg = "value for the evaluation is not set";
+      break;
+    case AST_ERR_SIZE:
+      errmsg = "not enough elements in the variable array";
       break;
     case AST_ERR_EVAL:
       errmsg = "unknown error for evaluation";

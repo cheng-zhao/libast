@@ -190,7 +190,7 @@ The arguments are
 -   `size`: number of characters (without the `'\0'` for termination), if this variable indicates a string;
 -   `dtype`: datatype of this variable: `AST_DTYPE_BOOL`, `AST_DTYPE_INT`, `AST_DTYPE_LONG`, `AST_DTYPE_FLOAT`, `AST_DTYPE_DOUBLE`, or `AST_DTYPE_STRING`.
 
-This function sets only one variable for once, and performs type casting if necessary. It returns `0` on success, and a non-zero integer on error.
+This function returns `0` on success, and a non-zero integer on error. It sets only one variable for once, and performs type casting if necessary. This is relatively inefficient if the user has already variables with the same data type as the expression, and would like to supply all of them at once. Therefore, this way of setting variables is not necessary in some cases for non-boolean-type expressions.
 
 <sub>[\[TOC\]](#table-of-contents)</sub>
 
@@ -203,6 +203,16 @@ int ast_eval(ast_t *ast, void *value);
 ```
 
 Here, `ast` indicates the interface of the AST, and `value` denotes the address of a variable for storing the result. Note that the data type of this variable has to be identical with the data type of the expression, which is specified for the AST construction.
+
+If the data type of the expression is numerical (non-boolean), the evaluation can be done with the following function, provided that the user-supplied variables are all in the same data type as the expressions, and can be passed as an array:
+
+```c
+int ast_eval_num(ast_t *ast, void *value, const void *var, const size_t size);
+```
+
+Here, `var` denotes the array of the user-supplied variables, with `size` being the total number of elements. In particular, the array index of an variable has to be one less than the variable index set in the expression. For instance, the variable `$3` must be the 3rd element in the array, i.e., with the array index of `2`, since array indexing in C starts from 0.
+
+Both `ast_eval` and `ast_eval_num` return `0` on success, and an non-zero integer on failure. Furthermore, function `ast_eval_num` is thread-safe.
 
 <sub>[\[TOC\]](#table-of-contents)</sub>
 
