@@ -322,11 +322,11 @@ Return:
   the index for the insertion otherwise.
 ******************************************************************************/
 static long ast_vidx_pos(const long *arr, const long num, const long vidx) {
-  int i, l, u;
+  int l, u;
   l = 0;
   u = num - 1;
   while (l <= u) {
-    i = (l + u) >> 1;
+    int i = (l + u) >> 1;
     if (arr[i] < vidx) l = i + 1;
     else if (arr[i] > vidx) u = i - 1;
     else return -(i + 1);       /* the element is already there */
