@@ -46,15 +46,21 @@
 
 /* Enumeration of supported data types. */
 typedef enum {
-  AST_DTYPE_DOUBLE,
-  AST_DTYPE_LONG
+  AST_DTYPE_BOOL   = 1,
+  AST_DTYPE_INT    = 2,
+  AST_DTYPE_LONG   = 4,
+  AST_DTYPE_FLOAT  = 8,
+  AST_DTYPE_DOUBLE = 16,
+  AST_DTYPE_STRING = 32
 } ast_dtype_t;
 
 /* The interface of the abstract syntax tree. */
 typedef struct {
-  ast_dtype_t dtype;    /* Numerical data type for the AST.     */
-  int nvar;             /* Number of unique variables.          */
+  ast_dtype_t dtype;    /* Data type for the expression.        */
+  long nvar;            /* Number of unique variables.          */
+  void *var;            /* The list of unique variables.        */
   long *vidx;           /* Unique indices of variables.         */
+  char *exp;            /* A copy of the expression string.     */
   void *ast;            /* The root node of the AST.            */
   void *error;          /* Data structure for error handling.   */
 } ast_t;
@@ -78,24 +84,39 @@ Function `ast_build`:
 Arguments:
   * `ast`:      interface of the abstract syntax tree;
   * `str`:      null terminated string for the expression;
-  * `dtype`:    data type for the abstract syntax tree.
+  * `dtype`:    data type for the abstract syntax tree;
+  * `eval`:     true for pre-evaluating values.
 Return:
   Zero on success; non-zero on error.
 ******************************************************************************/
-int ast_build(ast_t *ast, const char *str, const ast_dtype_t dtype);
+int ast_build(ast_t *ast, const char *str, const ast_dtype_t dtype,
+    const bool eval);
+
+/******************************************************************************
+Function `ast_set_var`:
+  Set the value of a variable in the variable array
+Arguments:
+  * `ast`:      interface of the abstract syntax tree;
+  * `idx`:      index of the variable (starting from 1);
+  * `value`:    pointer to a variable holding the value to be set;
+  * `size`:     length of the string type variable;
+  * `dtype`:    data type of the value.
+Return:
+  Zero on success; non-zero on error.
+******************************************************************************/
+int ast_set_var(ast_t *ast, const long idx, const void *value,
+    const size_t size, const ast_dtype_t dtype);
 
 /******************************************************************************
 Function `ast_eval`:
   Evaluate the value given the abstract syntax tree and the variable array.
 Arguments:
   * `ast`:      interface of the abstract syntax tree;
-  * `var`:      pointer to the variable array;
-  * `size`:     number of elements of the variable array;
   * `value`:    address of the variable holding the evaluated value.
 Return:
   Zero on success; non-zero on error.
 ******************************************************************************/
-int ast_eval(ast_t *ast, const void *var, const size_t size, void *value);
+int ast_eval(ast_t *ast, void *value);
 
 /******************************************************************************
 Function `ast_perror`:

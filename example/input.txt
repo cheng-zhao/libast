@@ -1,0 +1,4 @@
+DOUBLE (-$2 + sqrt( ${2}**2 - 4 * $1 * $3 )) / (2 * $1)
+INT 1 1
+DOUBLE 2 6
+FLOAT 3 5
