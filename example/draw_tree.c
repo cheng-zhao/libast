@@ -54,7 +54,7 @@ typedef struct ast_tree_struct {
 
 /* Symbols for the tokens. */
 const char *token[] = { "NULL", "NUM", "STR", "VAR", "(", ")", "abs", "sqrt",
-  "ln", "log", "-", "!", "~", "**", "*", "/", "%%", "+", "-", "<<", ">>",
+  "ln", "log", "-", "!", "~", "**", "*", "/", "%", "+", "-", "<<", ">>",
   "<", "<=", ">", ">=", "==", "!=", "&", "^", "|", "&&", "||" };
 
 /* Print the error message and exit. */

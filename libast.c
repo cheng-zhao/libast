@@ -1082,7 +1082,7 @@ static void ast_parse_token(ast_t *ast, ast_node_t *node, const char *src) {
     return;
   }
 
-  ast_var_t v;
+  ast_var_t v = {0, .v.ival = 0};
   /* Retrieve the value if this is a number. */
   if (tok == AST_TOK_NUM) {
     char *end;
@@ -1317,7 +1317,7 @@ static int ast_eval_int(ast_t *ast, const ast_node_t *node) {
       case AST_TOK_DIV: return v1 / v2;
       case AST_TOK_REM: return v1 % v2;
       case AST_TOK_EXP:
-        if (v2 < INT8_MIN || v2 > INT8_MAX) {
+        if (v2 > UINT8_MAX) {
           if (v1 == 1) return 1;
           if (v1 == -1) return 1 - 2 * (v2 & 1);
           return 0;
@@ -1372,7 +1372,7 @@ static long ast_eval_long(ast_t *ast, const ast_node_t *node) {
       case AST_TOK_DIV: return v1 / v2;
       case AST_TOK_REM: return v1 % v2;
       case AST_TOK_EXP:
-        if (v2 < INT8_MIN || v2 > INT8_MAX) {
+        if (v2 > UINT8_MAX) {
           if (v1 == 1) return 1;
           if (v1 == -1) return 1 - 2 * (v2 & 1);
           return 0;
@@ -1746,7 +1746,7 @@ static void ast_eval_bool(ast_t *ast, ast_node_t *node) {
       case AST_TOK_EXP:
         if (dtype == AST_DTYPE_LONG) {
           lres = 0;
-          if (v2->v.lval < INT8_MIN || v2->v.lval > INT8_MAX) {
+          if (v2->v.lval > UINT8_MAX) {
             if (v1->v.lval == 1) lres = 1;
             else if (v1->v.lval == -1) lres = 1 - 2 * (v2->v.lval & 1);
           }
@@ -2153,7 +2153,7 @@ static void ast_eval_pre(ast_t *ast, ast_node_t *node) {
       case AST_TOK_EXP:
         if (dtype == AST_DTYPE_INT) {
           ires = 0;
-          if (v2->v.ival < INT8_MIN || v2->v.ival > INT8_MAX) {
+          if (v2->v.ival > UINT8_MAX) {
             if (v1->v.ival == 1) ires = 1;
             else if (v1->v.ival == -1) ires = 1 - 2 * (v2->v.ival & 1);
           }
@@ -2163,7 +2163,7 @@ static void ast_eval_pre(ast_t *ast, ast_node_t *node) {
         }
         else if (dtype == AST_DTYPE_LONG) {
           lres = 0;
-          if (v2->v.lval < INT8_MIN || v2->v.lval > INT8_MAX) {
+          if (v2->v.lval > UINT8_MAX) {
             if (v1->v.lval == 1) lres = 1;
             else if (v1->v.lval == -1) lres = 1 - 2 * (v2->v.lval & 1);
           }

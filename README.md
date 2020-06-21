@@ -1,7 +1,7 @@
 # libast
 
 ![GitHub](https://img.shields.io/github/license/cheng-zhao/libast.svg)
-
+![Codacy grade](https://img.shields.io/codacy/grade/416fd62ad6fe4286a7990c79b47a1a6b.svg)
 
 ## Table of Contents
 
@@ -238,7 +238,7 @@ make
 
 ### Abstract syntax tree illustration
 
-The file [`draw_tree.c`](example/draw_tree.c) is an implementation of the AST illustration with ASCII characters. By default the filename of the compiled executable is `libast_draw`. It should be called with two command line options, the first indicating the data type of the expression (can be `BOOL`, `INT`, `LONG`, `FLOAT`, and `DOUBLE`), followed by the expression.
+The file [`draw_tree.c`](example/draw_tree.c) is an implementation of the AST illustration with ASCII characters and ANSI colours. By default the filename of the compiled executable is `libast_draw`. It should be called with two command line options, the first indicating the data type of the expression (can be `BOOL`, `INT`, `LONG`, `FLOAT`, and `DOUBLE`), followed by the expression.
 
 For instance, the AST constructed for the expression shown in the [Overview section](#overview) can be drawn by this example:
 
