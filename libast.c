@@ -2336,6 +2336,13 @@ int ast_build(ast_t *ast, const char *str, const ast_dtype_t dtype,
 
   /* Reset variable indices. */
   ast_reset_idx(ast, node);
+  /* Free pre-allocated memory that is not necessary any more. */
+  if (ast->nvar) {
+    if (ast->nvar & (ast->nvar - 1)) {          /* nvar is not power of 2 */
+      long *tmp = realloc(ast->vidx, ast->nvar * sizeof(long));
+      if (tmp) ast->vidx = tmp;         /* do nothing if realloc fails */
+    }
+  }
 
   /* Allocate memory for variables. */
   if (ast->nvar) {
