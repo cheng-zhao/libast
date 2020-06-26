@@ -84,6 +84,7 @@ int main(int argc, char *argv[]) {
 
   FILE *fp;
   char line[BUF];
+  char strv[BUF];
   bool ast_built = false;
 
   bool bv;
@@ -99,6 +100,8 @@ int main(int argc, char *argv[]) {
 
   /* Start reading the file. */
   memset(line, 0, BUF);
+  memset(strv, 0, BUF);
+  char *s = strv;
   while (fgets(line, BUF - 1, fp) != NULL) {
     char *tmp = line;
     while (isspace(*tmp)) tmp++;        /* omit white spaces */
@@ -160,12 +163,19 @@ int main(int argc, char *argv[]) {
             AST_VAR_FLAG, AST_VAR_START, id, AST_VAR_END, dv);
         break;
       case AST_DTYPE_STRING:
-        while (isspace(*str)) str++;
-        for (iv = 0; iv < BUF; iv++)
-          if (!str[iv] || !isgraph(str[iv])) break;
-        if (ast_set_var(ast, id, str, iv, AST_DTYPE_STRING)) PRINT_ERROR(ast);
+        if (sscanf(str, "%s", s) != 1) {
+          fprintf(stderr, "Error: failed to read the string.\n");
+          return 1;
+        }
+        iv = strlen(s);
+        if (ast_set_var(ast, id, s, iv, AST_DTYPE_STRING)) PRINT_ERROR(ast);
         printf("Variable %c%c%ld%c (STRING): %.*s\n",
-            AST_VAR_FLAG, AST_VAR_START, id, AST_VAR_END, iv, str);
+            AST_VAR_FLAG, AST_VAR_START, id, AST_VAR_END, iv, s);
+        s += iv + 1;
+        if (s >= strv + BUF) {
+          fprintf(stderr, "Error: the strings are too long.\n");
+          return 1;
+        }
         break;
       default:
         break;
