@@ -2519,7 +2519,7 @@ void ast_perror(const ast_t *ast, FILE *fp, const char *msg) {
       errmsg = "not enough elements in the variable array";
       break;
     case AST_ERR_EVAL:
-      errmsg = "unknown error for evaluation";
+      errmsg = "data type error for evaluation";
       break;
     case AST_ERR_NVAR:
       errmsg = "too many number of variables";
