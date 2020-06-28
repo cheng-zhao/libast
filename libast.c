@@ -326,7 +326,7 @@ static long ast_vidx_pos(const long *arr, const long num, const long vidx) {
   l = 0;
   u = num - 1;
   while (l <= u) {
-    long i = (l + u) >> 1;
+    long i = ((unsigned long) l + (unsigned long) u) >> 1;
     if (arr[i] < vidx) l = i + 1;
     else if (arr[i] > vidx) u = i - 1;
     else return -(i + 1);       /* the element is already there */
