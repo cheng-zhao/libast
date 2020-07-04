@@ -55,8 +55,8 @@ typedef struct ast_tree_struct {
 
 /* Symbols for the tokens. */
 const char *token[] = { "NULL", "NUM", "STR", "VAR", "(", ")", "abs", "sqrt",
-  "ln", "log", "-", "!", "~", "**", "*", "/", "%", "+", "-", "<<", ">>",
-  "<", "<=", ">", ">=", "==", "!=", "&", "^", "|", "&&", "||" };
+  "ln", "log", "isfinite", "-", "!", "~", "**", "*", "/", "%", "+", "-", "<<",
+  ">>", "<", "<=", ">", ">=", "==", "!=", "&", "^", "|", "&&", "||" };
 
 /* Print the error message and exit. */
 #define PRINT_ERROR(ast) {                              \

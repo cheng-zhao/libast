@@ -101,6 +101,7 @@ A full list of the supported tokens, as well as their attributes, are listed bel
 | <span><code>sqrt(&bull;)</code></span>                                    | Square root                                     | &mdash;    | `AST_DTYPE_NUMBER`  | `AST_DTYPE_REAL`    |
 | <span><code>ln(&bull;)</code></span>                                      | Natural logarithm                               | &mdash;    | `AST_DTYPE_NUMBER`  | `AST_DTYPE_REAL`    |
 | <span><code>log(&bull;)</code></span>                                     | Base 10 logarithm                               | &mdash;    | `AST_DTYPE_NUMBER`  | `AST_DTYPE_REAL`    |
+| <span><code>isfinite(&bull;)</code></span>                                | Check if the<br />value is finite               | &mdash;    | `AST_DTYPE_REAL`    | `AST_DTYPE_BOOL`    |
 | `-`                                                                       | Negative                                        | 12         | `AST_DTYPE_NUMBER`  | `AST_DTYPE_NUMBER`  |
 | `!`                                                                       | Logical NOT                                     | 12         | `AST_DTYPE_NATIVE`  | `AST_DTYPE_BOOL`    |
 | `~`                                                                       | Bitwise NOT                                     | 12         | `AST_DTYPE_INTEGER` | `AST_DTYPE_INTEGER` |

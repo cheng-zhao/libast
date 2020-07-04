@@ -86,28 +86,29 @@ typedef enum {
   AST_TOK_SQRT        = 7,      /* sqrt : square root       */
   AST_TOK_LN          = 8,      /*   ln : log_e             */
   AST_TOK_LOG         = 9,      /*  log : log_10            */
-  AST_TOK_NEG         = 10,     /*  `-` : negative          */
-  AST_TOK_LNOT        = 11,     /*  `!` : logical NOT       */
-  AST_TOK_BNOT        = 12,     /*  `~` : bitwise NOT       */
-  AST_TOK_EXP         = 13,     /* `**` : Exponent          */
-  AST_TOK_MUL         = 14,     /*  `*` : multiplication    */
-  AST_TOK_DIV         = 15,     /*  `/` : division          */
-  AST_TOK_REM         = 16,     /*  `%` : remainder         */
-  AST_TOK_ADD         = 17,     /*  `+` : addition          */
-  AST_TOK_MINUS       = 18,     /*  `-` : subtraction       */
-  AST_TOK_LEFT        = 19,     /* `<<` : left shift        */
-  AST_TOK_RIGHT       = 20,     /* `>>` : right shift       */
-  AST_TOK_LT          = 21,     /*  `<` : less than         */
-  AST_TOK_LE          = 22,     /* `<=` : less or equal     */
-  AST_TOK_GT          = 23,     /*  `>` : greater than      */
-  AST_TOK_GE          = 24,     /* `>=` : greater or equal  */
-  AST_TOK_EQ          = 25,     /* `==` : equal to          */
-  AST_TOK_NEQ         = 26,     /* `!=` : not equal to      */
-  AST_TOK_BAND        = 27,     /*  `&` : bitwise AND       */
-  AST_TOK_BXOR        = 28,     /*  `^` : bitwise XOR       */
-  AST_TOK_BOR         = 29,     /*  `|` : bitwise OR        */
-  AST_TOK_LAND        = 30,     /* `&&` : logical AND       */
-  AST_TOK_LOR         = 31      /* `||` : logical OR        */
+  AST_TOK_ISFINITE    = 10,     /*        isfinite          */
+  AST_TOK_NEG         = 11,     /*  `-` : negative          */
+  AST_TOK_LNOT        = 12,     /*  `!` : logical NOT       */
+  AST_TOK_BNOT        = 13,     /*  `~` : bitwise NOT       */
+  AST_TOK_EXP         = 14,     /* `**` : Exponent          */
+  AST_TOK_MUL         = 15,     /*  `*` : multiplication    */
+  AST_TOK_DIV         = 16,     /*  `/` : division          */
+  AST_TOK_REM         = 17,     /*  `%` : remainder         */
+  AST_TOK_ADD         = 18,     /*  `+` : addition          */
+  AST_TOK_MINUS       = 19,     /*  `-` : subtraction       */
+  AST_TOK_LEFT        = 20,     /* `<<` : left shift        */
+  AST_TOK_RIGHT       = 21,     /* `>>` : right shift       */
+  AST_TOK_LT          = 22,     /*  `<` : less than         */
+  AST_TOK_LE          = 23,     /* `<=` : less or equal     */
+  AST_TOK_GT          = 24,     /*  `>` : greater than      */
+  AST_TOK_GE          = 25,     /* `>=` : greater or equal  */
+  AST_TOK_EQ          = 26,     /* `==` : equal to          */
+  AST_TOK_NEQ         = 27,     /* `!=` : not equal to      */
+  AST_TOK_BAND        = 28,     /*  `&` : bitwise AND       */
+  AST_TOK_BXOR        = 29,     /*  `^` : bitwise XOR       */
+  AST_TOK_BOR         = 30,     /*  `|` : bitwise OR        */
+  AST_TOK_LAND        = 31,     /* `&&` : logical AND       */
+  AST_TOK_LOR         = 32      /* `||` : logical OR        */
 } ast_tok_t;
 
 /* Types of the tokens. */
@@ -153,6 +154,8 @@ static const ast_tok_attr_t ast_tok_attr[] = {
   {AST_TOKT_FUNC,   88,  1,   AST_DTYPE_NUMBER,     AST_DTYPE_REAL},
   /** AST_TOK_LOG         :     `log`   **/
   {AST_TOKT_FUNC,   88,  1,   AST_DTYPE_NUMBER,     AST_DTYPE_REAL},
+  /** AST_TOK_ISFINITE    :    isfinite **/
+  {AST_TOKT_FUNC,   88,  1,     AST_DTYPE_REAL,     AST_DTYPE_BOOL},
   /** AST_TOK_NEG         :     `-`     **/
   {AST_TOKT_UOPT,   12,  1,   AST_DTYPE_NUMBER,   AST_DTYPE_NUMBER},
   /** AST_TOK_LNOT        :     `!`     **/
@@ -920,12 +923,16 @@ static void ast_parse_token(ast_t *ast, ast_node_t *node, const char *src) {
   /* Check the token, so no check is performed in `ast_insert`. */
   ast_tok_t tok = AST_TOK_UNDEF;
   switch (*c) {
+    case 'i':                           /* for inf or isfinite */
+      if (c[1] == 's' && c[2] == 'f' && c[3] == 'i' && c[4] == 'n'
+          && c[5] == 'i' && c[6] == 't' && c[7] == 'e' && c[8] == '(') {
+        c += 8;
+        tok = AST_TOK_ISFINITE;
+      }
+      break;
     case '.':
-    case 'i':                           /* for inf */
-    case 'I':
-    case 'n':                           /* for nan */
-    case 'N':
-      if ((ast->dtype & AST_DTYPE_REAL) == 0) break;
+      if (ast->dtype != AST_DTYPE_BOOL && (ast->dtype & AST_DTYPE_REAL) == 0)
+        break;
     case '0':
     case '1':
     case '2':
@@ -946,6 +953,7 @@ static void ast_parse_token(ast_t *ast, ast_node_t *node, const char *src) {
         c += 3;
         tok = AST_TOK_ABS;
       }
+      break;
     case 's':
       if (c[1] == 'q' && c[2] == 'r' && c[3] == 't' && c[4] == '(') {
         c += 4;
@@ -1583,6 +1591,16 @@ static void ast_eval_bool(ast_t *ast, ast_node_t *node) {
         dres = log10(dres);
         ast_set_var_value(&node->value, &dres, 0, AST_DTYPE_DOUBLE);
         return;
+      case AST_TOK_ISFINITE:
+        if (dtype == AST_DTYPE_FLOAT) bres = isfinite(v->v.fval) ? true : false;
+        else if (dtype == AST_DTYPE_DOUBLE)
+          bres = isfinite(v->v.dval) ? true : false;
+        else {
+          AST_ERRNO(ast) = AST_ERR_EVAL;
+          return;
+        }
+        ast_set_var_value(&node->value, &bres, 0, AST_DTYPE_BOOL);
+        return;
       case AST_TOK_BNOT:
         if (dtype == AST_DTYPE_LONG) {
           lres = ~v->v.lval;
@@ -1940,6 +1958,17 @@ static void ast_eval_pre(ast_t *ast, ast_node_t *node) {
         }
         dres = log10(dres);
         ast_set_var_value(&node->value, &dres, 0, AST_DTYPE_DOUBLE);
+        node->type = AST_TOK_NUM;
+        return;
+      case AST_TOK_ISFINITE:
+        if (dtype == AST_DTYPE_FLOAT) bres = isfinite(v->v.fval) ? true : false;
+        else if (dtype == AST_DTYPE_DOUBLE)
+          bres = isfinite(v->v.dval) ? true : false;
+        else {
+          AST_ERRNO(ast) = AST_ERR_EVAL;
+          return;
+        }
+        ast_set_var_value(&node->value, &bres, 0, AST_DTYPE_BOOL);
         node->type = AST_TOK_NUM;
         return;
       case AST_TOK_BNOT:
