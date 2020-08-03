@@ -28,7 +28,6 @@
 
 *******************************************************************************/
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <ctype.h>
@@ -2457,7 +2456,7 @@ Arguments:
 Return:
   Zero on success; non-zero on error.
 ******************************************************************************/
-int ast_eval_num(ast_t *ast, void *value, const void *var, const size_t size) {
+int ast_eval_num(ast_t *ast, void *value, const void *var, const long size) {
   if (!ast) return AST_ERR_INIT;
   if (AST_IS_ERROR(ast)) return AST_ERRNO(ast);
   if (!ast->ast) return AST_ERRNO(ast) = AST_ERR_NOEXP;

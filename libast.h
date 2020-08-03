@@ -31,6 +31,7 @@
 #ifndef _LIBAST_H_
 #define _LIBAST_H_
 
+#include <stdio.h>
 #include <stdbool.h>
 
 /*============================================================================*\
@@ -132,7 +133,7 @@ Arguments:
 Return:
   Zero on success; non-zero on error.
 ******************************************************************************/
-int ast_eval_num(ast_t *ast, void *value, const void *var, const size_t size);
+int ast_eval_num(ast_t *ast, void *value, const void *var, const long size);
 
 /******************************************************************************
 Function `ast_perror`:

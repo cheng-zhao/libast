@@ -208,7 +208,7 @@ Here, `ast` indicates the interface of the AST, and `value` denotes the address 
 If the data type of the expression is numerical (non-boolean), the evaluation can be done with the following function, provided that the user-supplied variables are all in the same data type as the expressions, and can be passed as an array:
 
 ```c
-int ast_eval_num(ast_t *ast, void *value, const void *var, const size_t size);
+int ast_eval_num(ast_t *ast, void *value, const void *var, const long size);
 ```
 
 Here, `var` denotes the array of the user-supplied variables, with `size` being the total number of elements. In particular, the array index of an variable has to be one less than the variable index set in the expression. For instance, the variable `$3` must be the 3rd element in the array, i.e., with the array index of `2`, since array indexing in C starts from 0.
