@@ -30,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
 #include <ctype.h>
 #include <limits.h>
 #include <string.h>
@@ -2567,7 +2568,7 @@ void ast_perror(const ast_t *ast, FILE *fp, const char *msg) {
   /* Print the specifier of the error location. */
   if (AST_ERRNO(ast) == AST_ERR_TOKEN && ast->exp && err->tpos) {
     fprintf(fp, "\n%s\n", ast->exp);
-    for (size_t i = 0; i < err->tpos - ast->exp; i++) fprintf(fp, " ");
+    for (ptrdiff_t i = 0; i < err->tpos - ast->exp; i++) fprintf(fp, " ");
     fprintf(fp, "^");
   }
   if (AST_ERRNO(ast) == AST_ERR_VAR && err->vidx) {
